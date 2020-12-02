@@ -2,20 +2,7 @@
 ;;
 ;; Copyright (C) 2020 Niko Sten
 ;;
-;; Author: Niko Sten <http://github/nsten>
-;; Maintainer: Niko Sten <niko.sten@gmail.com>
-;; Created: December 01, 2020
-;; Modified: December 01, 2020
-;; Version: 0.0.1
-;; Keywords:
-;; Homepage: https://github.com/nsten/01
-;; Package-Requires: ((emacs 28.0.50) (cl-lib "0.5"))
-;;
-;; This file is not part of GNU Emacs.
-;;
 ;;; Commentary:
-;;
-;;
 ;;
 ;;; Code:
 
