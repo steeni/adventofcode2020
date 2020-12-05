@@ -7,13 +7,14 @@
 ;;; Helper functions for I/O and other simple things.
 
 (provide 'helpers)
+(setq lexical-binding t)
 
 ;;; Code:
-(defun read-lines (filePath)
-  "Return a list of lines of a FILEPATH."
+(defun read-lines (filePath &optional omit-nulls)
+  "Return a list of lines of a FILEPATH optionally OMIT-NULLS."
   (with-temp-buffer
     (insert-file-contents filePath)
-    (split-string (buffer-string) "\n" t)))
+    (split-string (buffer-string) "\n" omit-nulls)))
 
 (iter-defun combinations-2 (coll)
   "Genarates 2-way combinations for COLL."
@@ -31,5 +32,6 @@
 (defun ch-occurrences (ch str)
   "Find how many CH found in STR."
   (seq-count (lambda (c) (equal c ch)) str))
+
 
 ;;; helpers.el ends here

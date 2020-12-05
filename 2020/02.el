@@ -12,7 +12,7 @@
 
 (load-file "./helpers.el")
 
-(setq data (read-lines "02.input"))
+(setq data (read-lines "02.input" t))
 
 (defun as-typed-record (record)
   "Read string values of a RECORD and change them into proper types."
