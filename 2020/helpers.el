@@ -42,4 +42,42 @@
               lst
               (list)))
 
+(defun comp (a b)
+  "Combine 2 functions (A (B ...))."
+  (lambda (&rest args)
+    (funcall a (apply b args))))
+
+(defun comp-n (&rest functions)
+  "Combine n FUNCTIONS (A (B .. (N..)))."
+  (lambda (&rest args)
+    (seq-first
+     (seq-reduce (lambda (a f)
+                   (list (apply f a)))
+                 functions
+                 args))))
+
+(defun intersect-2 (a b)
+  "Intersects 2 sequences A and B."
+  (seq-reduce (lambda (acc item)
+                (if (member item b)
+                    (cons item acc)
+                  acc))
+              a nil))
+
+(defun intersect-n (&rest sets)
+  (seq-reduce (lambda (acc seq)
+                (intersect-2 acc seq))
+              (cdr sets) (car sets)))
+
+
+
+;; (fset 'asdf-z (comp 'not (lambda (a b) (and a b))))
+;; (asdf-z nil t) => t
+;; (asdf-z t t) => nil
+;; comp 'delete-dups (comp 'string-to-list 'string-join)
+
+(defun string-to-list (str)
+  "Convert string (STR) sequence to list sequence."
+  (seq-into str 'list))
+
 ;;; helpers.el ends here

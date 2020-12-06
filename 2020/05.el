@@ -61,7 +61,7 @@
   (seq-reduce (lambda (seats code)
                 (progn
                   (let ((row (decode-row code))
-                         (col (decode-col code)))
+                        (col (decode-col code)))
                     (setf (elt (elt seats row) col) nil)
                     seats)))
               row-data
