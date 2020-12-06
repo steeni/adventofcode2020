@@ -33,5 +33,13 @@
   "Find how many CH found in STR."
   (seq-count (lambda (c) (equal c ch)) str))
 
+(defun split-list-by (lst by)
+  "Split list (LST) by (BY) element creating groups from data in between."
+  (seq-reduce (lambda (a b)
+                (if (equal b by)
+                    (cons (list) a)
+                  (cons (cons b (car a)) (cdr a))))
+              lst
+              (list)))
 
 ;;; helpers.el ends here
