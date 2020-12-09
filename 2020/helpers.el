@@ -69,6 +69,9 @@
                 (intersect-2 acc seq))
               (cdr sets) (car sets)))
 
+(defun numeric-string (str)
+  (string-match-p "\\`[1-9][0-9]*\\'" str))
+
 
 
 ;; (fset 'asdf-z (comp 'not (lambda (a b) (and a b))))
