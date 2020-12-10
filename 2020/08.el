@@ -11,12 +11,20 @@
 (provide '08)
 (load-file "./helpers.el")
 
+;; Parsing
+
 (rx-define op-rx
   (seq (group (seq (or "acc" "jmp" "nop"))) " " (group (or "+" "-") (* digit))))
 
 (defun parse-op (line)
   "Parse one LINE of machine language."
   (cdr (seq-first (s-match-strings-all (rx op-rx) line))))
+
+(defun parse-ops (file)
+  "Parse code operations from FILE."
+  (seq-map 'parse-op (read-lines file)))
+
+;; Running code
 
 (cl-defstruct proc-state ops ip acc visited)
 
@@ -37,7 +45,7 @@
         (`"nop" (make-proc-state :ops ops :ip (+ ip 1) :acc acc :visited visited))))))
 
 (defun is-runnable-state (state)
-  "Get if machine is in runnable STATE."
+  "Check if machine is in runnable STATE."
   (let* ((ops (proc-state-ops state))
          (is-visited (gethash (proc-state-ip state) (proc-state-visited state)))
          (has-instruction (not (null (nth (proc-state-ip state) ops)))))
@@ -53,33 +61,32 @@
                   :acc 0
                   :visited (make-hash-table :test 'eq))))
 
-(defun runapp-end (instructions)
-  "Run INSTRUCTIONS to end or return nill."
-  (let ((state (runapp instructions)))
-    (if (nth (proc-state-ip state) instructions)
-        nil
-      state)))
+(defun is-complete (state)
+  "Check if app is in completed STATE."
+  (null (nth (proc-state-ip state) (proc-state-ops state))))
 
 (defun swapop (instructions ip op)
   "Swap one OP in INSTRUCTIONS at IP."
   (progn
-    (setf (car (nth ip instructions)) op)
+    (let ((line (nth ip instructions)))
+      (setf (nth ip instructions) (list op (cadr line))))
     instructions))
 
-(proc-state-acc (runapp (seq-map 'parse-op (read-lines "08.input"))))
+(message "Part 1 solution is %s"
+         (proc-state-acc (runapp (parse-ops "08.input"))))
 
-(let* ((instructions (seq-map 'parse-op (read-lines "08.input")))
-       (final-state (runapp instructions)))
-  (message "Part 1 solution is %s" (proc-state-acc final-state))
-  (message "Part 2 solution is %s"
-           (seq-map (lambda (ip)
-                      (let ((opcode (car (nth ip instructions)))
-                            (ops (seq-copy instructions)))
-                        (pcase opcode
-                          (`"acc" nil)
-                          (`"jmp" (runapp-end (swapop ops ip "nop")))
-                          (`"nop" (runapp-end (swapop ops ip "jmp"))))))
-                    (number-sequence 0 (length instructions)))))
-
+(message "Part 2 solution is %s"
+         (let ((instructions (parse-ops "08.input")))
+           (proc-state-acc
+            (seq-find 'is-complete
+                      (seq-filter 'identity
+                                  (seq-map (lambda (ip)
+                                             (let ((opcode (car (nth ip instructions)))
+                                                   (ops (copy-sequence instructions)))
+                                               (pcase opcode
+                                                 (`"acc" nil)
+                                                 (`"jmp" (runapp (swapop ops ip "nop")))
+                                                 (`"nop" (runapp (swapop ops ip "jmp"))))))
+                                           (number-sequence 0 (length instructions))))))))
 ;;; 08.el ends here
 ;;;
