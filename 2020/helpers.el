@@ -43,12 +43,12 @@
               (list)))
 
 (defun comp (a b)
-  "Combine 2 functions (A (B ...))."
+  "Combine 2 functions (A (B ...)). Use fset to bind function."
   (lambda (&rest args)
     (funcall a (apply b args))))
 
 (defun comp-n (&rest functions)
-  "Combine n FUNCTIONS (A (B .. (N..)))."
+  "Combine n FUNCTIONS (A (B .. (N..))). Use fset to bind function."
   (lambda (&rest args)
     (seq-first
      (seq-reduce (lambda (a f)
@@ -72,12 +72,21 @@
 (defun numeric-string (str)
   (string-match-p "\\`[1-9][0-9]*\\'" str))
 
+(defun iterate-while (pred-fun iterator-fun init)
+  "Call ITERATOR-FUN for INIT while PRED-FUN produces true for INIT. Result of previous iteration will INIT next."
+    (let ((data init))
+      (progn
+        (while (funcall pred-fun data)
+          (setq data (funcall iterator-fun data)))
+        data)))
 
-
-;; (fset 'asdf-z (comp 'not (lambda (a b) (and a b))))
-;; (asdf-z nil t) => t
-;; (asdf-z t t) => nil
-;; comp 'delete-dups (comp 'string-to-list 'string-join)
+(defun iterate-until (pred-fun iterator-fun init)
+  "Call ITERATOR-FUN for INIT until PRED-FUN produces true for INIT. Result of previous iteration will INIT next."
+  (let ((data init))
+    (progn
+      (while (not (funcall pred-fun data))
+        (setq data (funcall iterator-fun data)))
+      data)))
 
 (defun string-to-list (str)
   "Convert string (STR) sequence to list sequence."
