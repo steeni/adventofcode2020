@@ -7,7 +7,6 @@
 ;;; Helper functions for I/O and other simple things.
 
 (provide 'helpers)
-(setq lexical-binding t)
 
 ;;; Code:
 (defun read-lines (filePath &optional omit-nulls)
@@ -23,11 +22,20 @@
       (iter-yield (list x y)))))
 
 (iter-defun combinations-3 (coll)
-  "Genarates 2-way combinations for COLL."
+  "Genarates 3-way combinations for COLL."
   (dolist (x coll)
     (dolist (y coll)
       (dolist (z coll)
         (iter-yield (list x y z))))))
+
+(iter-defun combgen (coll)
+  "Create permutation generator for coll."
+  (let ((coll2 (copy-tree coll)))
+    (dolist (x coll)
+      (progn
+        (pop coll2)
+        (dolist (y coll2)
+          (iter-yield (list x y)))))))
 
 (defun ch-occurrences (ch str)
   "Find how many CH found in STR."
@@ -91,5 +99,20 @@
 (defun string-to-list (str)
   "Convert string (STR) sequence to list sequence."
   (seq-into str 'list))
+
+;; FIXME: This is so ugly implementation :´-(
+;; - It can be done without copying seq
+;; - It can be done withuot state
+(defun seq-reduce-while (pred-fn aggr-fn coll init)
+  "Reduce COLL with AGGR-FN while PRED-FN is true starting from INIT.
+Final result may exceed the PRED-FN because AGGR-FN is run while PRED-FN is true and it can still be true for last round."
+  (let* ((coll-2 (seq-copy coll))
+         (agg init)
+         (val (pop coll-2)))
+    (progn
+      (while (and (funcall pred-fn agg val) coll-2)
+        (setq agg (funcall aggr-fn agg val))
+        (setq val (pop coll-2)))
+      agg)))
 
 ;;; helpers.el ends here
